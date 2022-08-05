@@ -11,8 +11,8 @@ from src.train import train
 from src.eval_clustering_accuracy import eval_clustering_accuracy
 from src.eval_linear_classifier import eval_linear_classifier
 from src.eval_transfer_learning import eval_transfer_learning
-
-
+import torch
+import os
 '''
 
 Data Preperation
@@ -93,6 +93,8 @@ elif loss_type == 'vic_reg':
     
 train_obj = train() 
 
+os.system('tensorboard --logdir=./runs')
+
 train_obj.run_training(model, train_dataloader, loss, optimiser)
 
 eval_linear_args = {'n_classes':27,'epochs':2}
@@ -107,6 +109,7 @@ elif eval_type == 'transfer_learning':
     eval_task = eval_transfer_learning(**eval_transfer_learning_args)
     
 eval_task(model,train_dataloader,test_dataloader)
+torch.save(model.state_dict(), 'model_cross_view.pt')
 
 
 

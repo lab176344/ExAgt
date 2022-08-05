@@ -11,41 +11,35 @@ from src.train import train
 
 
 
+'''
 
+Data Preperation
+
+'''
 dataset_name = 'argoverse'
 
-
-
-
-
-
-
-# dataset number
-
-dataset_train = [{'name': dataset_name, 'mode': 'train',
+dataset_train_args_1 = {'name': dataset_name, 'mode': 'train',
                   'augmentation_type': {"connectivity": 0.3, "fieldofview": 0.7},
                   'bbox_meter': [60, 60], 'bbox_pixel': [120, 120],
                   'center_meter': [20.0, 30.0], \
-                  'hist_seq_first': 0, 'hist_seq_last': 50, 'pred_seq_first': 0,
-                  'pred_seq_last': 0, 'orientation': 'ego'},  # x1
-
-                 {'name': dataset_name, 'mode': 'train', 'bbox_meter': [60, 60],
+                  'seq_first': 0, 'seq_last': 50, 'orientation': 'ego'} 
+dataset_train_args_2 = {'name': dataset_name, 'mode': 'train', 'bbox_meter': [60, 60],
                   'augmentation_type': {"connectivity": 0.7, "fieldofview": 0.3},
                   'bbox_pixel': [120, 120], 'center_meter': [20.0, 30.0], \
-                  'hist_seq_first': 0, 'hist_seq_last': 50, 'pred_seq_first': 0,
-                  'pred_seq_last': 0, 'orientation': 'ego'}]  # x2
+                  'seq_first': 0, 'seq_last': 50, 'orientation': 'ego'}
 
-dataset_test = [{'name': dataset_name, 'mode': 'val', 'bbox_meter': [60, 60],
+dataset_train = list()
+dataset_train[0] = dataset(**dataset_train_args_1)
+dataset_train[1] = dataset(**dataset_train_args_2)
+
+
+dataset_test_args = {'name': dataset_name, 'mode': 'val', 'bbox_meter': [60, 60],
                  'bbox_pixel': [120, 120], 'center_meter': [20.0, 30.0], \
                  'hist_seq_first': 0, 'hist_seq_last': 50, 'pred_seq_first': 0,
-                 'pred_seq_last': 0, 'orientation': 'ego'},
-                {'name': dataset_name, 'mode': 'val', 'bbox_meter': [60, 60],
-                 'bbox_pixel': [120, 120], 'center_meter': [20.0, 30.0], \
-                 'hist_seq_first': 0, 'hist_seq_last': 50, 'pred_seq_first': 0,
-                 'pred_seq_last': 0, 'orientation': 'ego'}]
+                 'pred_seq_last': 0, 'orientation': 'ego'}
 
-# dataloader number
-# dataloader hypers
+dataset_test = [dataset(**dataset_test_args)]
+
 
 trans_train_x1 = transforms.Compose([
     transforms.RandomCrop(80),
@@ -63,22 +57,39 @@ trans_train_x2 = transforms.Compose([
         transforms=[torchio.transforms.RandomNoise(std=(0, 0.1))], p=0.3),
 ])
 
-train_dataloader = {'idx': 0, 'batch_size': 64, 'epochs': 30, 'num_workers': 4,
+train_dataloader_args = {'idx': 0, 'batch_size': 64, 'epochs': 30, 'num_workers': 4,
                     'shuffle': True,
-                    'representation': 'image',
                     'transformation': [trans_train_x1, trans_train_x2],
                     'grid_chosen': [0, 3, 6, 9]}
 
-test_dataloader = {'idx': 0, 'batch_size': 128, 'num_workers': 10,
+test_dataloader_args = {'idx': 0, 'batch_size': 128, 'num_workers': 10,
                    'shuffle': False,
-                   'representation': 'image', 'transformation': [trans_train_x2, None],
+                   'transformation': [trans_train_x2, None],
                    'grid_chosen': [0, 3, 6, 9]}
 
-# model number
-# model hypers
+train_dataloader = dataloader(dataset=dataset_train,**train_dataloader_args)
+test_dataloader = dataloader(dataset=dataset_test,**test_dataloader_args)
 
-# model = {'idx':0,'model_depth':18, 'projector_dim': [1024, 2048]}
-model = {'idx': 3, 'model_depth': 50, 'projector_dim': [2048, 2048, 2048]}
+'''
+
+Training (+ model init etc)
+
+'''
+
+loss_type = 'barlow_twins' # 'vic_reg'
+model_args = {'projector_dim': [2048, 2048, 2048]}
+model = model_cross_view(**model_args)
+
+optimiser = optim.Adam(model.parameters(), lr=0.001, weight_decay=0, betas=(0.9, 0.999))
+
+if loss_type == 'barlow_twins':
+    loss = loss_barlow_twins()
+elif loss_type == 'vic_reg':
+    loss = loss_vic_reg()
+    
+train_obj = train() 
+
+train_obj.run_training(model, train_dataloader, loss, optimiser)
 
 # eval number
 # eval hypers
@@ -86,27 +97,6 @@ evaluation = {'idx': 2}
 
 # optimiser numer
 # optimiser hypers
-optimiser = {'idx': 1, 'lr': 0.001, 'weight_decay': 0, 'betas': (0.9, 0.999)}
 
-# scheduler number
-# scheduler hypers
-scheduler = None  # {'idx':0, 'base_lr': 0.06, 'final_lr':0.0006 , 'warmup_epochs': 0}
 
-# loss number
-# loass hypers
-loss = {'idx': 0}
-
-if __name__ == '__main__':
-    models = ["model_epoch_15_base_double_resnet18_bs50.pth", "model_epoch_15_base_expert_double_resnet18_bs50.pth"]
-    for mod in models:
-        print(mod)
-        experiment = Experiment(meta_info, dataset_train, dataset_test,
-                                train_dataloader, test_dataloader, model, training,
-                                evaluation, optimiser, scheduler, loss)
-        experiment.save_experiment_config(add_timestamp=True)
-        experiment.load_checkpoint("./checkpoints/" + mod)
-        experiment.evaluate()
-    # experiment.save_checkpoint(meta_info["name"])
-    # experiment.load_checkpoint("./checkpoints/" + meta_info["name"] + ".pth")
-    # experiment.evaluate()
 

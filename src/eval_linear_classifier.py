@@ -3,18 +3,13 @@ import logging
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
-from src.evaluation.eval import eval
-from src.model.model_3 import BasicBlock, Bottleneck, model_3
-from src.model.model_5 import  model_5
 from src.utils.average_meter import AverageMeter
 from tqdm import tqdm
-import random
 from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import classification_report
 
 
-class eval_2(eval):
+class eval_linear_classifier(object):
     def __init__(self,
                  idx=2,
                  name='Linear classifier evaluation',
@@ -50,14 +45,7 @@ class eval_2(eval):
         """
         Evaluates accuracy on linear model trained on upstream ssl model
         """
-        representation_dim = 0
-        for m in ssl_model.modules():
-            if isinstance(m, Bottleneck):
-                representation_dim = 2048
-                break
-            if isinstance(m, BasicBlock):
-                representation_dim = 512
-                break
+        representation_dim = 512
         if representation_dim == 0:
             raise NotImplementedError("Representation dim could not be inferred")
 
@@ -70,14 +58,9 @@ class eval_2(eval):
         self._test_transfer_task(ssl_model, dataloader_test)
 
     def forward_adapter(self, model, x):
-        if isinstance(model, model_3):
-            representation = model._forward_backbone(x)
-            return representation
-        if isinstance(model, model_5):
-            representation = model.backbone_and_projector._forward_backbone(x)
-            representation = nn.functional.normalize(representation, dim=1, p=2)
-            return representation
-
+        representation = model._forward_backbone(x)
+        return representation
+     
     def _train_transfer_task(self, ssl_model, dataloader, dataloader_test):
         """Starts training for the downstream task
         """

@@ -5,8 +5,6 @@ import torch
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.utils.linear_assignment_ import linear_assignment
 from src.evaluation.eval import eval
-from src.model.model_3 import BasicBlock, Bottleneck, model_3
-from src.model.model_5 import  model_5
 from tqdm import tqdm
 from scipy.cluster.hierarchy import fcluster
 import fastcluster as fc
@@ -36,13 +34,9 @@ class eval_3(eval):
         self.pbar.close()
 
     def forward_adapter(self, model, x):
-        if isinstance(model, model_3):
-            representation = model._forward_backbone(x)
-            return representation
-        if isinstance(model, model_5):
-            model.prototypes = None
-            representation = model.forward(x)
-            return representation
+        representation = model._forward_backbone(x)
+        return representation
+       
 
 
     @torch.no_grad()
@@ -51,17 +45,7 @@ class eval_3(eval):
         Evaluates accuracy on linear model trained on upstream ssl model
         """
         ssl_model.eval()
-        representation_dim = 0
-        for m in ssl_model.modules():
-            if isinstance(ssl_model, model_5):
-                representation_dim = 128
-                break
-            if isinstance(m, Bottleneck):
-                representation_dim = 2048
-                break
-            if isinstance(m, BasicBlock):
-                representation_dim = 512
-                break
+        representation_dim = 512
         if representation_dim == 0:
             raise NotImplementedError(
                 "Representation dim could not be inferred")

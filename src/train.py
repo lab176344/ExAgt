@@ -9,7 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 
-class train_0():
+class train():
     def __init__(self) -> None:
         pass
 

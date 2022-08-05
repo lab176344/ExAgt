@@ -6,17 +6,22 @@ from src.dataset import dataset
 from src.model_cross_view import model_cross_view
 from src.loss_barlow_twins import loss as loss_barlow_twins
 from src.loss_vic_reg import loss as loss_vic_reg
+import torch.optim as optim
+from src.train import train
 
 
-meta_info = {"name": "argonewnew_baseline_double_trans",
-             "description": "baseline + connectivity for new argo data with barlow"}
 
-# train number
-# train hypers
-training = {'idx': 0, 'traintest': [70, 30], "num_gpus": 4}
+
+dataset_name = 'argoverse'
+
+
+
+
+
+
+
 # dataset number
-# dataset hypers
-dataset_name = "argonew"
+
 dataset_train = [{'name': dataset_name, 'mode': 'train',
                   'augmentation_type': {"connectivity": 0.3, "fieldofview": 0.7},
                   'bbox_meter': [60, 60], 'bbox_pixel': [120, 120],

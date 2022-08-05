@@ -1,11 +1,9 @@
 import math
 import random
-
 import numpy as np
 import torch
 import torchnet as tnt
 from torch.utils.data.dataloader import default_collate
-from torchvision.transforms import transforms
 
 
 class dataloader_0(object):
@@ -20,28 +18,15 @@ class dataloader_0(object):
         shuffle=None,
         epoch_size=None,
         transformation=None,
-        transformation3D=None,
-        representation='image',
-        test=False,
+        uniform_sample=False,
         grid_chosen=None,
-        name='Barlow Twins Dataloader',
+        name='Cross View Prediction Dataloader',
         description='Dataloader which gives two augumented version of the scenario with the target labels if available'
     ):
-        # super().__init__(idx,
-        #                  dataset,
-        #                  batch_size,
-        #                  epochs,
-        #                  num_workers,
-        #                  shuffle,
-        #                  transformation,
-        #                  representation,
-        #                  name,
-        #                  description,
-        #                  test)
+
         self.transform = transformation
-        self.tranformation3D = transformation3D
-        self.r1int = 3
-        self.r2int = 10
+        self.r1int = 3 # some random seet to start with
+        self.r2int = 10 # some random seet to start with different seeds for the second augumentation
         self.grid_chosen = grid_chosen
         self.epoch_size = epoch_size if epoch_size is not None else len(
             dataset[0])
@@ -50,10 +35,9 @@ class dataloader_0(object):
         self.num_workers = num_workers,
         self.epochs = epochs
         self.dataset = dataset
-        self.test = test
+        self.uniform_sample = uniform_sample
         self.num_gpus = num_gpus
-        if representation != 'image':
-            print('Barlow twins will only work with Images')
+
 
     def _load_function(self, idx):
         idx = idx % len(self.dataset[0])
@@ -66,8 +50,8 @@ class dataloader_0(object):
         x2 = x2.type(torch.uint8)
 
         rotated_imgs1, rotated_imgs2 = self.generate_random_sequence(
-            x1, x2, len(self.grid_chosen), self.transform, self.tranformation3D,
-            self.rand_seed1, self.rand_seed2, self.test)
+            x1, x2, len(self.grid_chosen), self.transform,
+            self.rand_seed1, self.rand_seed2)
         return rotated_imgs1, rotated_imgs2, y, idx
 
     def _collate_fun(self, batch):
@@ -103,9 +87,9 @@ class dataloader_0(object):
         return math.ceil((len(self.dataset[0]) / self.batch_size) / self.num_gpus)
 
     def generate_random_sequence(self, scenario1: torch.Tensor,
-                                 scenario2: torch.Tensor, stuff,
-                                 custom_transforms, transform3d, rseed1,
-                                 rseed2, test):
+                                 scenario2: torch.Tensor, temporal_len_grids,
+                                 custom_transforms, rseed1,
+                                 rseed2):
         """[Generates random sequences based on the OGs and the number of OGs chosen]
 
         Args:
@@ -116,8 +100,6 @@ class dataloader_0(object):
         Returns:
             [tuple]: [description]
         """
-        # old 30x120x10
-        # new 46x30x120
 
         custom_transforms1 = custom_transforms[0]
         custom_transforms2 = custom_transforms[1]
@@ -126,9 +108,8 @@ class dataloader_0(object):
         trans_clip1 = []
         trans_clip2 = []
         random.seed(rseed1)
-        # torch.manual_seed(rseed1)
-        if not test:
-            id_1 = random.sample(range(scenario1.shape[1]), stuff)
+        if not self.uniform_sample:
+            id_1 = random.sample(range(scenario1.shape[1]), temporal_len_grids)
         else:
             id_1 = np.array(self.grid_chosen)
 
@@ -142,19 +123,14 @@ class dataloader_0(object):
                                                      *frame.shape)).squeeze(0)
             else:
                 frame = frame.unsqueeze(0)
-                # frame = transforms.ToPILImage()(frame)
-                # frame = transforms.ToTensor()(frame)
-
             trans_clip1.append(frame)
 
         trans_clip1 = torch.cat(trans_clip1).permute([0, 2, 1]).unsqueeze(0)
-        # old 1x4x30x120
 
         random.seed(rseed2)
-        # torch.manual_seed(rseed2)
 
-        if not test:
-            id_2 = random.sample(range(scenario1.shape[1]), stuff)
+        if not self.uniform_sample:
+            id_2 = random.sample(range(scenario1.shape[1]), temporal_len_grids)
         else:
             id_2 = np.array(self.grid_chosen)
         id_2_sort = np.sort(id_2)
@@ -171,9 +147,6 @@ class dataloader_0(object):
                                                      *frame.shape)).squeeze(0)
             else:
                 frame = frame.unsqueeze(0)
-                # frame = transforms.ToPILImage()(frame)
-                # frame = transforms.ToTensor()(frame)
-
             trans_clip2.append(frame)
         trans_clip2 = torch.cat(trans_clip2).permute([0, 2, 1]).unsqueeze(0)
 

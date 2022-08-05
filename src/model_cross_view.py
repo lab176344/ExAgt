@@ -97,12 +97,12 @@ class Bottleneck(nn.Module):
         return out
 
 
-class model_3(nn.Module):
+class model_cross_view(nn.Module):
     def __init__(
             self,
-            block=None,
-            layers=None,
-            block_inplanes=None,
+            block=BasicBlock,
+            layers=[2, 2, 2, 2],
+            block_inplanes=get_inplanes(),
             n_input_channels=1,
             conv1_t_size=2,
             conv1_t_stride=1,
@@ -241,56 +241,4 @@ class model_3(nn.Module):
         return x
 
 
-def generate_model(idx=0, model_depth=10, projector_dim=None, normalize=True):
-    if projector_dim is None:
-        projector_dim = [128, 128, 128]
-    assert model_depth in [10, 18, 34, 50, 101, 152, 200]
 
-    if model_depth == 10:
-        model = model_3(block=BasicBlock,
-                        layers=[1, 1, 1, 1],
-                        block_inplanes=get_inplanes(),
-                        projector_dim=projector_dim,
-                        normalize=normalize)
-    elif model_depth == 18:
-        model = model_3(block=BasicBlock,
-                        layers=[2, 2, 2, 2],
-                        block_inplanes=get_inplanes(),
-                        projector_dim=projector_dim,
-                        normalize=normalize)
-    elif model_depth == 34:
-        model = model_3(block=BasicBlock,
-                        layers=[3, 4, 6, 3],
-                        block_inplanes=get_inplanes(),
-                        projector_dim=projector_dim,
-                        normalize=normalize)
-    elif model_depth == 50:
-        model = model_3(block=Bottleneck,
-                        layers=[3, 4, 6, 3],
-                        block_inplanes=get_inplanes(),
-                        projector_dim=projector_dim,
-                        normalize=normalize)
-    elif model_depth == 101:
-        model = model_3(block=Bottleneck,
-                        layers=[3, 4, 23, 3],
-                        block_inplanes=get_inplanes(),
-                        projector_dim=projector_dim,
-                        normalize=normalize)
-    elif model_depth == 152:
-        model = model_3(block=Bottleneck,
-                        layers=[3, 8, 36, 3],
-                        block_inplanes=get_inplanes(),
-                        projector_dim=projector_dim,
-                        normalize=normalize)
-    elif model_depth == 200:
-        model = model_3(block=Bottleneck,
-                        layers=[3, 24, 36, 3],
-                        block_inplanes=get_inplanes(),
-                        projector_dim=projector_dim,
-                        normalize=normalize)
-    return model
-
-
-if __name__ == '__main__':
-    resnet = generate_model(10, 10)
-    print(resnet)

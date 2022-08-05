@@ -5,22 +5,14 @@ import torch.nn as nn
 class loss_5(nn.Module):
     def __init__(
         self,
-        idx=5,
-        name='VicReg Loss',
-        description='VicReg Loss',
-        input_='B x D',
-        output='1D',
         lambda_param=0.005,
     ) -> None:
-        super().__init__(idx, name, description, input_, output)
         self.lambda_param = lambda_param
 
     def forward(self,
                 out_1=None,
                 out_2=None,
-                epoch=0,
-                device=None,
-                world_size=1):
+                ):
 
         loss = vicreg_loss_func(out_1, out_2)
         return loss

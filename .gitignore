@@ -1,0 +1,17 @@
+*.pyc
+*.json
+\data
+*.png
+tuna
+*.prof
+\runs
+\logs
+logs.log
+*.mat
+*.pdf
+*.npy
+*.profile
+*.pkl
+\backup_runs
+*.pth
+*.gif

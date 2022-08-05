@@ -11,27 +11,19 @@ from sklearn.metrics import classification_report
 
 class eval_linear_classifier(object):
     def __init__(self,
-                 idx=2,
-                 name='Linear classifier evaluation',
-                 input_='y_true,y_pred',
-                 output='acc.',
-                 description='todo',
                  n_classes=26 + 1,
                  epochs=2,
                  save_projected_representations=True,
                  save_raw_representations=True):
-        super().__init__(idx, name, input_, output, description)
         self.n_epochs = epochs
         self.n_classes = n_classes
         self.save_projected_representations = save_projected_representations
         self.save_raw_representations = save_raw_representations
-
         self.pbar = None
         self.device = torch.device(
             "cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
     def __call__(self, ssl_model, dataloader_train, dataloader_test):
-        assert dataloader_train.num_gpus == 1
         steps_train = len(dataloader_train.dataset
                           ) / dataloader_train.batch_size * self.n_epochs
         steps_test = len(dataloader_test.dataset) / dataloader_test.batch_size

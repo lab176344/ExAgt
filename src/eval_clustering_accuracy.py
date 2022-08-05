@@ -4,27 +4,18 @@ import numpy as np
 import torch
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.utils.linear_assignment_ import linear_assignment
-from src.evaluation.eval import eval
 from tqdm import tqdm
 from scipy.cluster.hierarchy import fcluster
 import fastcluster as fc
 import umap
 import json
 
-class eval_3(eval):
-    def __init__(
-            self,
-            idx=3,
-            name='Unsupervised clustering accuracy',
-            input_='y_true,y_pred',
-            output='acc.',
-            description='Used for paper experiments; similiar to eval_0 but'
-                        ' updated to fit into the pipeline'):
-        super().__init__(idx, name, input_, output, description)
+class eval_clustering_accuracy(object):
+    def __init__(self):
         self.device = torch.device(
             "cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-    def __call__(self, ssl_model, dataloader_train, dataloader_test):
+    def __call__(self, ssl_model, dataloader_test):
 
         self.pbar = tqdm(total=1)
         self.pbar.set_description(
@@ -37,8 +28,6 @@ class eval_3(eval):
         representation = model._forward_backbone(x)
         return representation
        
-
-
     @torch.no_grad()
     def _evaluate(self, ssl_model, dataloader):
         """
@@ -50,8 +39,7 @@ class eval_3(eval):
             raise NotImplementedError(
                 "Representation dim could not be inferred")
 
-        n_classes = 26  # dataloader.dataset.get_num_classes()
-        fit = umap.UMAP(n_neighbors=15)
+        n_classes = 26  
         ssl_model = ssl_model.to(self.device)
 
         z = torch.tensor([]).to(self.device)
@@ -65,18 +53,7 @@ class eval_3(eval):
             y_true = torch.cat([y_true, y])
 
 
-        # z = torch.load('./embeddings.pt')
-        # y_true = torch.load('./embeddings_labels.pt')
-        projected_embeddings = fit.fit_transform(z.cpu())
-        with open("./projected_embeddings.json", "w") as f:
-            json.dump(projected_embeddings.tolist(), f)
-
-        torch.save(z, './embeddings.pt')
-        torch.save(y_true, './embeddings_labels.pt')
-
-
         Tree = fc.linkage(z.cpu().numpy(), method='average', metric='euclidean')
-
 
         cluster_assignments = fcluster(Tree, n_classes, criterion='maxclust')
 

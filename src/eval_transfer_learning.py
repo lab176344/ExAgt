@@ -4,15 +4,13 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import classification_report
-from src.evaluation.eval import eval
-from src.model.model_3 import BasicBlock, Bottleneck, model_3
-from src.model.model_5 import model_5
+
 from src.utils.average_meter import AverageMeter
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 
-class eval_5(eval):
+class eval_transfer_learning(object):
     def __init__(self,
                  idx=5,
                  name='Transfer task finetuning',
@@ -29,15 +27,8 @@ class eval_5(eval):
             "cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
     def forward_adapter(self, model, x):
-        if isinstance(model, model_3):
-            representation = model._forward_backbone(x)
-            return representation
-        if isinstance(model, model_5):
-            model.prototypes = None
-            representation = model.forward(x)
-            pred = model.projector(representation)
-            return pred
-
+        representation = model._forward_backbone(x)
+        return representation
 
     def __call__(self, ssl_model, dataloader_train, dataloader_test):
         steps_train = len(dataloader_train.dataset[0]
@@ -53,17 +44,7 @@ class eval_5(eval):
         """
         Evaluates accuracy on linear model trained on upstream ssl model
         """
-        representation_dim = 0
-        for m in ssl_model.modules():
-            if isinstance(ssl_model, model_5):
-                representation_dim = 128
-                break
-            if isinstance(m, Bottleneck):
-                representation_dim = 2048
-                break
-            if isinstance(m, BasicBlock):
-                representation_dim = 512
-                break
+        representation_dim = 512
         if representation_dim == 0:
             raise NotImplementedError(
                 "Representation dim could not be inferred")

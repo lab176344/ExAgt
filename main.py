@@ -8,7 +8,9 @@ from src.loss_barlow_twins import loss as loss_barlow_twins
 from src.loss_vic_reg import loss as loss_vic_reg
 import torch.optim as optim
 from src.train import train
-
+from src.eval_clustering_accuracy import eval_clustering_accuracy
+from src.eval_linear_classifier import eval_linear_classifier
+from src.eval_transfer_learning import eval_transfer_learning
 
 
 '''
@@ -77,6 +79,8 @@ Training (+ model init etc)
 '''
 
 loss_type = 'barlow_twins' # 'vic_reg'
+eval_type = 'clustering_accuracy' # 'linear_classifier' # 'transfer_learning'
+
 model_args = {'projector_dim': [2048, 2048, 2048]}
 model = model_cross_view(**model_args)
 
@@ -91,12 +95,17 @@ train_obj = train()
 
 train_obj.run_training(model, train_dataloader, loss, optimiser)
 
-# eval number
-# eval hypers
-evaluation = {'idx': 2}
+eval_linear_args = {'n_classes':27,'epochs':2}
+eval_transfer_learning_args = {'n_classes':27,'epochs':15}
 
-# optimiser numer
-# optimiser hypers
+
+if eval_type == 'clustering_accuracy':
+    eval_linear_task = eval_clustering_accuracy()
+elif eval_type == 'linear_classifier':
+    eval_clustering_accuracy_task = eval_linear_classifier(**eval_linear_args)
+elif eval_type == 'transfer_learning':
+    eval_transfer_learning_task = eval_transfer_learning(**eval_transfer_learning_args)
+
 
 
 

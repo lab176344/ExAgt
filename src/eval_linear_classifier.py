@@ -10,15 +10,9 @@ from sklearn.metrics import classification_report
 
 
 class eval_linear_classifier(object):
-    def __init__(self,
-                 n_classes=26 + 1,
-                 epochs=2,
-                 save_projected_representations=True,
-                 save_raw_representations=True):
+    def __init__(self,n_classes=26 + 1,epochs=2):
         self.n_epochs = epochs
         self.n_classes = n_classes
-        self.save_projected_representations = save_projected_representations
-        self.save_raw_representations = save_raw_representations
         self.pbar = None
         self.device = torch.device(
             "cuda:0") if torch.cuda.is_available() else torch.device("cpu")

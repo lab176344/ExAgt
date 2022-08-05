@@ -11,15 +11,7 @@ from tqdm import tqdm
 
 
 class eval_transfer_learning(object):
-    def __init__(self,
-                 idx=5,
-                 name='Transfer task finetuning',
-                 input_='y_true,y_pred',
-                 output='acc.',
-                 description='todo',
-                 n_classes=26 + 1,
-                 epochs=15):
-        super().__init__(idx, name, input_, output, description)
+    def __init__(self,n_classes=26 + 1,epochs=15):
         self.n_epochs = epochs
         self.n_classes = n_classes
         self.pbar = None
@@ -31,8 +23,7 @@ class eval_transfer_learning(object):
         return representation
 
     def __call__(self, ssl_model, dataloader_train, dataloader_test):
-        steps_train = len(dataloader_train.dataset[0]
-                          ) / dataloader_train.batch_size * self.n_epochs
+        steps_train = len(dataloader_train.dataset[0]) / dataloader_train.batch_size * self.n_epochs
         steps_test = len(dataloader_test.dataset[0]) / dataloader_test.batch_size
         self.pbar = tqdm(total=int(steps_train + steps_test))
         self.pbar.set_description(

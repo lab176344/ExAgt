@@ -1,8 +1,6 @@
 from experiment import Experiment
 from torchvision import transforms
-from pytorchvideo.transforms import UniformTemporalSubsample
 import torchio
-from trajectory_center_crop import TrajectoryCenterCrop
 meta_info = {"name": "argonewnew_baseline_double_trans",
              "description": "baseline + connectivity for new argo data with barlow"}
 

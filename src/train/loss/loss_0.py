@@ -1,10 +1,8 @@
 import torch
-import torch.distributed as dist
-from src.train.loss.loss import loss
-
+import torch.nn as nn
 import torch.nn.functional as F
 
-class loss_0(loss):
+class loss_0(nn.Module):
     def __init__(
         self,
         idx=0,
@@ -14,7 +12,7 @@ class loss_0(loss):
         output='1D',
         lambda_param=0.005,
     ) -> None:
-        super().__init__(idx, name, description, input_, output)
+        super().__init__()
         self.lambda_param = lambda_param
 
     def forward(self,

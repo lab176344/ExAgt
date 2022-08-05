@@ -1,9 +1,7 @@
-import torch
 import torch.nn as nn
-from src.train.loss.loss import loss
 import torch.nn.functional as F
 
-class loss_1(loss):
+class loss_1(nn.Module):
     def __init__(self,
                 idx = 1,
                 name = 'MSE Loss',
@@ -12,7 +10,7 @@ class loss_1(loss):
                 output = '1D',
                 pred_ = 50,
                 ) -> None:
-        super().__init__(idx,name,description,input_,output)
+        super().__init__()
         self.pred_frames = pred_
     def forward(self, out_1 = None, out_2 = None):
         PRED_FRAMES = self.pred_frames

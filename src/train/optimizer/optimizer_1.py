@@ -1,4 +1,3 @@
-from src.train.optimizer.optimizer import optimizer
 import torch
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F

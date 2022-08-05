@@ -1,5 +1,3 @@
-from src.model.model import model
-import math
 from functools import partial
 import torch
 import torch.nn as nn
@@ -99,7 +97,7 @@ class Bottleneck(nn.Module):
         return out
 
 
-class model_3(model):
+class model_3(nn.Module):
     def __init__(
             self,
             block=None,
@@ -113,16 +111,10 @@ class model_3(model):
             widen_factor=1.0,
             projector_dim=None,
             normalize=True,
-            idx=0,
-            name='ResNet3D',
-            size=None,
-            n_params=None,
-            input_=None,
-            output=None,
+            idx=3,
             task='Barlow twins model with batch based latent normalisation',
             description='3D version of the ResNet'):
-        super().__init__(idx, name, size, n_params, input_, output, task,
-                         description)
+        super().__init__()
         block_inplanes = [int(x * widen_factor) for x in block_inplanes]
 
         self.in_planes = block_inplanes[0]

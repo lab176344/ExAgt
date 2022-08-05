@@ -1,9 +1,8 @@
 import torch
 import torch.nn.functional as F
-from src.train.loss.loss import loss
+import torch.nn as nn
 
-
-class loss_5(loss):
+class loss_5(nn.Module):
     def __init__(
         self,
         idx=5,

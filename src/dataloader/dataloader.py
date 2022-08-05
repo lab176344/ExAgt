@@ -6,10 +6,9 @@ import torchnet as tnt
 from torch.utils.data.dataloader import default_collate
 
 
-class dataloader_0(object):
+class dataloader(object):
     def __init__(
         self,
-        idx=0,
         dataset=None,
         batch_size=None,
         epochs=None,

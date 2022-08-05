@@ -1,17 +1,13 @@
 import torch
 import torch.nn as nn
-import time
 import torch.nn.functional as F
-import numpy as np
-import torch.distributed as dist
-from src.train.loss.loss import loss
 
 
-class loss_3(loss):
+class loss_3(nn.Module):
     def __init__(self, idx=4, name="Vicr", description="Variance Invariance Convariance loss", input_="z1,z2", output="loss",
                  wtSim=0.25, wtVar=0.25, wtCov=0.25):
 
-        super().__init__(idx, name, description, input_, output)
+        super().__init__()
         self.wtSim = wtSim
         self.wtVar = wtVar
         self.wtCov = wtCov

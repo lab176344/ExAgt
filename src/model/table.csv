@@ -1,4 +1,0 @@
-idx,name,size,n_params,input,output,task,description
-0,ResNet3D,,,,,,3D version of the ResNet
-1,ResNet,,,,,,ResNet with possibility to generate different depths
-2,ResNet,,,,,,ResNet with possibility to generate different depths

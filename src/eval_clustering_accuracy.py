@@ -15,7 +15,7 @@ class eval_clustering_accuracy(object):
         self.device = torch.device(
             "cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-    def __call__(self, ssl_model, dataloader_test):
+    def __call__(self, ssl_model, dataloader_train, dataloader_test):
 
         self.pbar = tqdm(total=1)
         self.pbar.set_description(

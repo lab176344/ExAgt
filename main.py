@@ -100,11 +100,13 @@ eval_transfer_learning_args = {'n_classes':27,'epochs':15}
 
 
 if eval_type == 'clustering_accuracy':
-    eval_linear_task = eval_clustering_accuracy()
+    eval_task = eval_clustering_accuracy()
 elif eval_type == 'linear_classifier':
-    eval_clustering_accuracy_task = eval_linear_classifier(**eval_linear_args)
+    eval_task = eval_linear_classifier(**eval_linear_args)
 elif eval_type == 'transfer_learning':
-    eval_transfer_learning_task = eval_transfer_learning(**eval_transfer_learning_args)
+    eval_task = eval_transfer_learning(**eval_transfer_learning_args)
+    
+eval_task(model,train_dataloader,test_dataloader)
 
 
 

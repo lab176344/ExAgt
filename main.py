@@ -1,4 +1,3 @@
-from experiment import Experiment
 from torchvision import transforms
 import torchio
 from src.dataloader import dataloader
@@ -13,6 +12,7 @@ from src.eval_linear_classifier import eval_linear_classifier
 from src.eval_transfer_learning import eval_transfer_learning
 import torch
 import os
+
 '''
 
 Data Preperation
@@ -31,14 +31,13 @@ dataset_train_args_2 = {'name': dataset_name, 'mode': 'train', 'bbox_meter': [60
                   'seq_first': 0, 'seq_last': 50, 'orientation': 'ego'}
 
 dataset_train = list()
-dataset_train[0] = dataset(**dataset_train_args_1)
-dataset_train[1] = dataset(**dataset_train_args_2)
+dataset_train.append(dataset(**dataset_train_args_1))
+dataset_train.append(dataset(**dataset_train_args_2))
 
 
 dataset_test_args = {'name': dataset_name, 'mode': 'val', 'bbox_meter': [60, 60],
                  'bbox_pixel': [120, 120], 'center_meter': [20.0, 30.0], \
-                 'hist_seq_first': 0, 'hist_seq_last': 50, 'pred_seq_first': 0,
-                 'pred_seq_last': 0, 'orientation': 'ego'}
+                 'seq_first': 0, 'seq_last': 50, 'orientation': 'ego'}
 
 dataset_test = [dataset(**dataset_test_args)]
 
@@ -59,12 +58,12 @@ trans_train_x2 = transforms.Compose([
         transforms=[torchio.transforms.RandomNoise(std=(0, 0.1))], p=0.3),
 ])
 
-train_dataloader_args = {'idx': 0, 'batch_size': 64, 'epochs': 30, 'num_workers': 4,
+train_dataloader_args = {'batch_size': 64, 'epochs': 30, 'num_workers': 4,
                     'shuffle': True,
                     'transformation': [trans_train_x1, trans_train_x2],
                     'grid_chosen': [0, 3, 6, 9]}
 
-test_dataloader_args = {'idx': 0, 'batch_size': 128, 'num_workers': 10,
+test_dataloader_args = {'batch_size': 128, 'num_workers': 10,
                    'shuffle': False,
                    'transformation': [trans_train_x2, None],
                    'grid_chosen': [0, 3, 6, 9]}
@@ -93,7 +92,7 @@ elif loss_type == 'vic_reg':
     
 train_obj = train() 
 
-os.system('tensorboard --logdir=./runs')
+#os.system('tensorboard --logdir=./runs')
 
 train_obj.run_training(model, train_dataloader, loss, optimiser)
 

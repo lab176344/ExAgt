@@ -14,10 +14,10 @@ import torch
 import os
 
 '''
-
 Data Preperation
-
 '''
+
+
 dataset_name = 'argoverse'
 
 dataset_train_args_1 = {'name': dataset_name, 'mode': 'train',
@@ -71,10 +71,9 @@ test_dataloader_args = {'batch_size': 128, 'num_workers': 10,
 train_dataloader = dataloader(dataset=dataset_train,**train_dataloader_args)
 test_dataloader = dataloader(dataset=dataset_test,**test_dataloader_args)
 
+
 '''
-
 Training (+ model init etc)
-
 '''
 
 loss_type = 'barlow_twins' # 'vic_reg'

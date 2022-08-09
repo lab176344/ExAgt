@@ -12,11 +12,14 @@ from src.eval_linear_classifier import eval_linear_classifier
 from src.eval_transfer_learning import eval_transfer_learning
 import torch
 import os
+import multiprocessing as mp
 
 '''
 Data Preperation
 '''
-
+def target_tensorboard():
+    print('Starting tensorbarding in a separate python process')
+    os.system('tensorboard --logdir=runs --host=localhost --port=6006')
 
 dataset_name = 'argoverse'
 
@@ -92,6 +95,9 @@ elif loss_type == 'vic_reg':
 train_obj = train() 
 
 #os.system('tensorboard --logdir=./runs')
+mp.Process(target=target_tensorboard).start()
+
+
 
 train_obj.run_training(model, train_dataloader, loss, optimiser)
 

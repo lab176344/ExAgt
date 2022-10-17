@@ -1,13 +1,11 @@
-**List of available models**
-|   idx | name      |   size |   n_params |   input |   output | task                   | description   |
-|------:|:----------|-------:|-----------:|--------:|---------:|:-----------------------|:--------------|
-|     0 | ResNet50  |    100 |        100 |     100 |      100 | Trajectory forecasting | This model... |
-|     1 | ResNet100 |    100 |        100 |     100 |      100 | Trajectory forecasting | This model... |
-|     2 | ResNet150 |    100 |        100 |     100 |      100 | Trajectory forecasting | This model... |
-|    10 | ResNet200 |    100 |        100 |     100 |      100 | Trajectory forecasting | This model... |
+*This is the official code for the paper **ExAgt: Expert-guided Augmentation for Representation Learning of Traffic Scenarios** published in IEEE ITSC 2022, Macau, China*
 
-**TO DO**
-- [ ] Add frequency data for all the datasets
-- [ ] Sent logs to Email
-- [ ] Add Tensorboard to Eval
-- [ ] Model addition
+
+**Dataset**
+
+* The Argoverse motion prediction dataset is pre-processed and the augmentation and occcupancy grids information are generated. Please download the dataset from the link <link>
+* Place the dataset in a folder named data 
+
+**Code**
+* The file `main.py` is the config file to start the experiment.
+* 

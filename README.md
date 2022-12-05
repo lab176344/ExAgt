@@ -3,7 +3,7 @@
 
 **Dataset**
 
-* The Argoverse motion prediction dataset is pre-processed and the augmentation and occcupancy grids information are generated. Please download the dataset from the link <link>
+* The Argoverse motion prediction dataset is pre-processed and the augmentation and occcupancy grids information are generated. Please download the dataset from the link <will be added shortly>
 * Place the dataset in a folder named data 
 
 **Code**

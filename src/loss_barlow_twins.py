@@ -5,6 +5,7 @@ class loss(nn.Module):
     def __init__(self,
                 lambda_param = 0.005,
                 ) -> None:
+        super().__init__()
         self.lambda_param = lambda_param
 
     def forward(self,out_1 = None, out_2 = None, epoch = 0, device=None):

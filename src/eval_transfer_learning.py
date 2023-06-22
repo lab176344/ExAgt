@@ -93,22 +93,7 @@ class eval_transfer_learning(object):
             logging.info(
                 "Downstream task training epoch {}/{} loss: {}".format(
                     epoch + 1, self.n_epochs, loss_record.avg))
-            # calc test set loss
-            losses = []
-            if False:
-                for (x1, _, y, idx) in dataloader_test(epoch):
-                    x1 = x1.to(self.device).float()
-                    y = y.view(-1).to(self.device).long()
-                    with torch.no_grad():
-                        representation = ssl_model._forward_backbone(
-                            x1.to(self.device).float())
-                        pred = ssl_model._forward_projector(representation)
-                        loss = loss_fc(pred, y)
-                        losses.append(loss.item())
-                writer.add_scalar("Test Loss", sum(losses) / len(losses), bi)
 
-        save_path = f"./checkpoints/finetuned_model.pth"
-        torch.save(ssl_model.state_dict(), save_path)
 
     def _test_transfer_task(self, ssl_model, dataloader):
         """Evaluates accuracy on a previously trained linear classifier

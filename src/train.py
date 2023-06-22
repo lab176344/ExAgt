@@ -44,8 +44,7 @@ class train():
                     print("your data contains Nan")
                 loss = loss_fc(embedding1,
                                embedding2,
-                               device=device,
-                               world_size=dataloader_train.num_gpus)
+                               device=device)
 
                 loss_record.update(loss.item(), x1.size(0))
                 # compute gradient and do optimizer step
@@ -60,7 +59,7 @@ class train():
                 pbar.set_description(log_msg)
                 writer.add_scalar("Train Loss", loss, batch_idx)
                 logging.info(log_msg)
-                return
+                
 
         pbar.set_description("Training finished {} (Total time: {})".format(
             datetime.now().strftime("%d/%m/%Y %H:%M:%S"),

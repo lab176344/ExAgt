@@ -35,7 +35,7 @@ class dataset(Dataset):
         if augmentation_type is None:
             augmentation_type = {}
         self.name = name
-        path = (Path(__file__).parent.parent.parent).joinpath('data').joinpath(self.name)
+        path = (Path(__file__).parent.parent).joinpath('data').joinpath(self.name)
         self.dir = str(path)
         self.orientation = orientation
         self.mode = mode
@@ -70,6 +70,7 @@ class dataset(Dataset):
                             verify_compressed_data_integrity=False)
         bbox_meter_in = mat_temp['image_size_meter'].astype(numpy.int16)[0]
         orientation = float(-mat_temp['orient'][0])
+        #label = 0
         try:
             label = mat_temp['label_split'][0].astype(int) - 1
         except:
@@ -96,11 +97,7 @@ class dataset(Dataset):
         resolution_x = image.shape[1] / self.bbox_meter[1]
         resolution_y = image.shape[0] / self.bbox_meter[0]
 
-        if self.only_edges:
-            image = cv2.Canny(image, 0, 1)
-            fillColor = (255.0, 255.0, 255.0)
-        else:
-            fillColor = (0.0, 0.0, 0.0)
+
         image_out = numpy.tile(image, (self.seq_len, 1, 1))
         
         # DYNAMICS============================================================================================

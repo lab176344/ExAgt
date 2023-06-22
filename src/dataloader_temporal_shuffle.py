@@ -53,23 +53,13 @@ class dataloader(object):
                 x1, x2, len(self.grid_chosen), self.transform,
                 self.rand_seed1, self.rand_seed2)
             return rotated_imgs1, rotated_imgs2, y, idx
-        else: 
-            datasetwoAug = self.dataset[0]
-            x1 = datasetwoAug[idx]['image']
-            x2 = None
-            y = datasetwoAug[idx]['label']
-            x1 = x1.type(torch.uint8)
-
-            rotated_imgs1 = self.generate_random_sequence(
-                x1, x2, len(self.grid_chosen), self.transform,
-                self.rand_seed1, self.rand_seed2)
-            return rotated_imgs1, rotated_imgs1, y, idx
+            
 
     def _collate_fun(self, batch):
         self.rand_seed1 += self.r1int
         self.rand_seed2 += self.r2int
         batch = default_collate(batch)
-        assert (len(batch) == 4 or len(batch) == 3)
+        assert (len(batch) == 4)
         return batch
 
     def get_iterator(self, epoch, gpu_idx):
@@ -114,79 +104,49 @@ class dataloader(object):
 
         custom_transforms1 = custom_transforms[0]
         custom_transforms2 = custom_transforms[1]
-        if custom_transforms2 is not None:
-            USE_SAME_SAMPLING = False
+        USE_SAME_SAMPLING = False
 
-            trans_clip1 = []
-            trans_clip2 = []
+        trans_clip1 = []
+        trans_clip2 = []
+        random.seed(rseed1)
+    
+        id_1 = np.array(self.grid_chosen)
+
+        id_1_sort = np.sort(id_1)
+        for k in id_1_sort:
             random.seed(rseed1)
-            if not self.uniform_sample:
-                id_1 = random.sample(range(scenario1.shape[1]), temporal_len_grids)
+            torch.manual_seed(rseed1)
+            frame = scenario1[0, k, :, :]
+            if custom_transforms1 is not None:
+                frame = custom_transforms1(frame.view(1, 1,
+                                                     *frame.shape)).squeeze(0)
             else:
-                id_1 = np.array(self.grid_chosen)
+                frame = frame.unsqueeze(0)
+            trans_clip1.append(frame)
 
-            id_1_sort = np.sort(id_1)
-            for k in id_1_sort:
-                random.seed(rseed1)
-                torch.manual_seed(rseed1)
-                frame = scenario1[0, k, :, :]
-                if custom_transforms1 is not None:
-                    frame = custom_transforms1(frame.view(1, 1,
-                                                        *frame.shape)).squeeze(0)
-                else:
-                    frame = frame.unsqueeze(0)
-                trans_clip1.append(frame)
+        trans_clip1 = torch.cat(trans_clip1).permute([0, 2, 1]).unsqueeze(0)
 
-            trans_clip1 = torch.cat(trans_clip1).permute([0, 2, 1]).unsqueeze(0)
+        random.seed(rseed2)
 
-            random.seed(rseed2)
-
-            if not self.uniform_sample:
-                id_2 = random.sample(range(scenario1.shape[1]), temporal_len_grids)
-            else:
-                id_2 = np.array(self.grid_chosen)
-            id_2_sort = np.sort(id_2)
-
-            if USE_SAME_SAMPLING:
-                id_2_sort = id_1_sort
-
-            for k in id_2_sort:
-                random.seed(rseed2)
-                torch.manual_seed(rseed2)
-                frame = scenario2[0, k, :, :]
-                if custom_transforms2 is not None:
-                    frame = custom_transforms2(frame.view(1, 1,
-                                                        *frame.shape)).squeeze(0)
-                else:
-                    frame = frame.unsqueeze(0)
-                trans_clip2.append(frame)
-            trans_clip2 = torch.cat(trans_clip2).permute([0, 2, 1]).unsqueeze(0)
-
-            return trans_clip1, trans_clip2
+        if not self.uniform_sample:
+            id_2 = random.sample(range(scenario1.shape[1]), temporal_len_grids)
         else:
-            USE_SAME_SAMPLING = False
+            id_2 = np.array(self.grid_chosen)
+        id_2_sort = np.sort(id_2)
 
-            trans_clip1 = []
-            trans_clip2 = []
-            random.seed(rseed1)
-            if not self.uniform_sample:
-                id_1 = random.sample(range(scenario1.shape[1]), temporal_len_grids)
+        if USE_SAME_SAMPLING:
+            id_2_sort = id_1_sort
+
+        for k in id_2_sort:
+            random.seed(rseed2)
+            torch.manual_seed(rseed2)
+            frame = scenario2[0, k, :, :]
+            if custom_transforms2 is not None:
+                frame = custom_transforms2(frame.view(1, 1,
+                                                     *frame.shape)).squeeze(0)
             else:
-                id_1 = np.array(self.grid_chosen)
+                frame = frame.unsqueeze(0)
+            trans_clip2.append(frame)
+        trans_clip2 = torch.cat(trans_clip2).permute([0, 2, 1]).unsqueeze(0)
 
-            id_1_sort = np.sort(id_1)
-            for k in id_1_sort:
-                random.seed(rseed1)
-                torch.manual_seed(rseed1)
-                frame = scenario1[0, k, :, :]
-                if custom_transforms1 is not None:
-                    frame = custom_transforms1(frame.view(1, 1,
-                                                        *frame.shape)).squeeze(0)
-                else:
-                    frame = frame.unsqueeze(0)
-                trans_clip1.append(frame)
-
-            trans_clip1 = torch.cat(trans_clip1).permute([0, 2, 1]).unsqueeze(0)
-
-           
-            return trans_clip1
+        return trans_clip1, trans_clip2

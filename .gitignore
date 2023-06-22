@@ -15,3 +15,8 @@ logs.log
 \backup_runs
 *.pth
 *.gif
+*.m
+*.zip
+*.txt
+*.pt
+*.html

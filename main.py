@@ -27,11 +27,11 @@ dataset_train_args_1 = {'name': dataset_name, 'mode': 'train',
                   'augmentation_type': {"connectivity": 0.3, "fieldofview": 0.7},
                   'bbox_meter': [60, 60], 'bbox_pixel': [120, 120],
                   'center_meter': [20.0, 30.0], \
-                  'seq_first': 0, 'seq_last': 50, 'orientation': 'ego'} 
+                  'seq_first': 0, 'seq_last': 50, 'orientation': 'ego','augmentation_meta':{'range': 50.0, 'angle_range': 360.0}} 
 dataset_train_args_2 = {'name': dataset_name, 'mode': 'train', 'bbox_meter': [60, 60],
                   'augmentation_type': {"connectivity": 0.7, "fieldofview": 0.3},
                   'bbox_pixel': [120, 120], 'center_meter': [20.0, 30.0], \
-                  'seq_first': 0, 'seq_last': 50, 'orientation': 'ego'}
+                  'seq_first': 0, 'seq_last': 50, 'orientation': 'ego','augmentation_meta':{'range': 50.0, 'angle_range': 360.0}}
 
 dataset_train = list()
 dataset_train.append(dataset(**dataset_train_args_1))
@@ -61,7 +61,7 @@ trans_train_x2 = transforms.Compose([
         transforms=[torchio.transforms.RandomNoise(std=(0, 0.1))], p=0.3),
 ])
 
-train_dataloader_args = {'batch_size': 64, 'epochs': 30, 'num_workers': 4,
+train_dataloader_args = {'batch_size': 64, 'epochs': 1, 'num_workers': 4,
                     'shuffle': True,
                     'transformation': [trans_train_x1, trans_train_x2],
                     'grid_chosen': [0, 3, 6, 9]}
@@ -80,7 +80,7 @@ Training (+ model init etc)
 '''
 
 loss_type = 'barlow_twins' # 'vic_reg'
-eval_type = 'clustering_accuracy' # 'linear_classifier' # 'transfer_learning'
+eval_type = 'transfer_learning' # 'linear_classifier' # 'transfer_learning'
 
 model_args = {'projector_dim': [2048, 2048, 2048]}
 model = model_cross_view(**model_args)
@@ -96,9 +96,6 @@ train_obj = train()
 
 #os.system('tensorboard --logdir=./runs')
 mp.Process(target=target_tensorboard).start()
-
-
-
 train_obj.run_training(model, train_dataloader, loss, optimiser)
 
 eval_linear_args = {'n_classes':27,'epochs':2}
@@ -114,6 +111,7 @@ elif eval_type == 'transfer_learning':
     
 eval_task(model,train_dataloader,test_dataloader)
 torch.save(model.state_dict(), 'model_cross_view.pt')
+print('Finished')
 
 
 
